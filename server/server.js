@@ -20,35 +20,26 @@ app.use(function(req, res, next) {
 
 // ADD MOVIE
 app.post('/movies', (req, res) => {
-    var movie = new Movie({
-        title: req.body.title,
-        language: req.body.language,
-        rate: req.body.rate,
-        runtime: req.body.runtime,
-        description: req.body.description,
-        imageurl: req.body.imageurl,
-    });
+    var body = _.pick(req.body ,['title','language','rate','runtime','description','imageurl'])
+    var movie = new Movie(body);
 
     movie.save().then((mov) => {
         res.send(mov);
-    }, (e) => {
-        res.status(400).send(e);
+    }).catch((e) => {
+        res.status(400).send();
     });
 });
 
 
 // ADD USER
 app.post('/users', (req, res) => {
-    var user = new User({
-        name: req.body.name,
-        email: req.body.email,
-        age: req.body.age
-    });
+    var body = _.pick(req.body, ['name','email','password','age']);
+    var user = new User(body);
 
     user.save().then((usr) => {
         res.send(usr);
-    }, (e) => {
-        res.status(401).send(e)
+    }).catch((e) => {
+        res.status(401).send()
     });
 });
 

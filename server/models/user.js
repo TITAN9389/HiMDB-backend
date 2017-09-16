@@ -1,5 +1,6 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const validator = require('validator');
 
 var userSchema = new Schema({
 	name:{
@@ -12,8 +13,31 @@ var userSchema = new Schema({
 		type: String,
 		required: true,
 		trim: true,
+		minlength: 8,
+		unique: true,
+		validate: {
+			 validator: validator.isEmail, 
+			 //or // (value) => {
+			// 	return validator.isEmail(value);
+			// },
+			message: '{VALUE} is not a valid email'
+		}
+	},
+	password: {
+		type: String,
+		required: true,
 		minlength: 8
 	},
+	tokens: [{
+		access: {
+			type: String,
+			required: true
+		},
+		token: {
+			type: String,
+			required: true
+		}
+	}] ,
 	age:{
 		type: Number,
 		required: true,
