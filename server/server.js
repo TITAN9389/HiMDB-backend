@@ -39,7 +39,7 @@ app.post('/users', (req, res) => {
     user.save().then((usr) => {
         res.send(usr);
     }).catch((e) => {
-        res.status(401).send()
+        res.status(401).send(e);
     });
 });
 
