@@ -47,16 +47,4 @@ var userSchema = new Schema({
 
 var User = mongoose.model('User', userSchema);
 
-// var seb = new User({
-// 	name : 'Seb',
-// 	email: 'titan9389@me.com',
-// 	age: 24
-// });
-
-// seb.save().then((doc) => {
-// 	console.log('Added user', doc);
-// }, (e) => {
-// 	console.log('Unable to Add', e);
-// });
-
 module.exports = {User};

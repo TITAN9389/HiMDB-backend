@@ -20,7 +20,7 @@ app.use(function(req, res, next) {
 
 // ADD MOVIE
 app.post('/movies', (req, res) => {
-    var body = _.pick(req.body ,['title','language','rate','runtime','description','imageurl'])
+    var body = _.pick(req.body ,['title','year','language','rate','runtime','description','imageurl'])
     var movie = new Movie(body);
 
     movie.save().then((mov) => {
