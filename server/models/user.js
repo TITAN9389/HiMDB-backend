@@ -48,7 +48,7 @@ var UserSchema = new Schema({
 	}
 });
 
-// RESTRICT RETURNED DATA
+// LIMIT RETURNED DATA
 UserSchema.methods.toJSON = function () {
 	var user = this;
 	var userObject = user.toObject();
@@ -69,6 +69,17 @@ UserSchema.methods.generateAuthToken = function () {
 	});
 };
 
+// DELTE THE SPECIFIC TOKEN
+UserSchema.methods.removeToken = function(token) {
+	var user = this;
+
+	return user.update({
+		$pull : {
+			tokens: { token }
+		}
+	});
+};
+
 // FIND USER BY TOKEN WITH VERFICATION
 UserSchema.statics.findByToken = function (token) {
 	var User = this;
@@ -86,6 +97,28 @@ UserSchema.statics.findByToken = function (token) {
 		'tokens.access': 'auth'
 	});
 };
+
+// FIND USER BY CREDENTIALS
+UserSchema.statics.findByCredentials = function (email,password){
+	var User = this;
+
+	return User.findOne({ email }).then((user) => {
+		if (!user){
+			return Promise.reject();
+		}
+
+		return new Promise((resolve, reject) => {
+			bcrypt.compare(password, user.password, (err, res) => {
+				if (res) {
+					resolve(user);
+				} else {
+					reject();
+				}
+			});
+		});
+	});
+};
+
 
 // .PRE TO START BEFORE EACH REQUEST
 UserSchema.pre('save', function (next) {

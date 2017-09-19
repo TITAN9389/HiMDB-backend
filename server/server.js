@@ -15,21 +15,21 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
 
 // =================================USERs===============================
 // ADD USER
 app.post('/users', (req, res) => {
-    var body = _.pick(req.body, ['name','email','password','age']);
+    var body = _.pick(req.body, ['name', 'email', 'password', 'age']);
     var user = new User(body);
 
     user.save().then(() => {
-      return user.generateAuthToken();
+        return user.generateAuthToken();
     }).then((token) => {
-      res.header('x-auth', token).send(user);
+        res.header('x-auth', token).send(user);
     }).catch((e) => {
         res.status(400).send(e);
     });
@@ -44,25 +44,50 @@ app.post('/users', (req, res) => {
 //     });
 // });
 
+
 // GET USER WITH AUTH TOKEN
-app.get('/users/me' , authenticate, (req ,res) => {
-  res.send(req.user);
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+
+// USER LOGIN
+app.post('/users/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+        user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        });
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
+
+
+// USER LOGOUT
+app.delete('/users/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send();
+  }, () => {
+    res.status(400).send();
+  });
 });
 
 
 // =============================MOVIEs=============================
 // FETCH ALL MOVIES
 app.get('/movies', (req, res) => {
-   Movie.find().then((movies) => {
-    res.send({ movies })
-   },(e) => {
-    res.status(400).send(e);
-   })
+    Movie.find().then((movies) => {
+        res.send({ movies })
+    }, (e) => {
+        res.status(400).send(e);
+    })
 });
 
 // ADD MOVIE
 app.post('/movies', (req, res) => {
-    var body = _.pick(req.body ,['title','year','language','rate','runtime','description','imageurl'])
+    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl'])
     var movie = new Movie(body);
 
     movie.save().then((mov) => {
@@ -73,28 +98,28 @@ app.post('/movies', (req, res) => {
 });
 
 //FETCH MOVIE BY ID
-app.get('/movies/:id', (req, res) =>{
-  var id = req.params.id;
+app.get('/movies/:id', (req, res) => {
+    var id = req.params.id;
 
-  if (!ObjectID.isValid(id)) {
-    return res.status(404).send();
-  }
-
-  Movie.findById(id).then((movie) => {
-    if (!movie) {
-      return res.status(404).send();
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
     }
-    res.send({ movie });
-  }).catch((e) => {
-    res.status(400).send();
-  });
+
+    Movie.findById(id).then((movie) => {
+        if (!movie) {
+            return res.status(404).send();
+        }
+        res.send({ movie });
+    }).catch((e) => {
+        res.status(400).send();
+    });
 });
 
 
 // DELETE MOVIE BY ID
 // app.delete('/movies/:id', (req, res) => {
 //     var id = req.params.id; // get the id
-  
+
 //     if (!ObjectID.isValid(id)){   // validate the id --> not valid? return 404
 //       return res.status(404).send();
 //     }
