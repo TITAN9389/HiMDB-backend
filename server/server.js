@@ -1,3 +1,5 @@
+require('./config/config');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
@@ -87,7 +89,7 @@ app.get('/movies', (req, res) => {
 
 // ADD MOVIE
 app.post('/movies', (req, res) => {
-    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl'])
+    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl' ,'trailer']);
     var movie = new Movie(body);
 
     movie.save().then((mov) => {
@@ -96,6 +98,7 @@ app.post('/movies', (req, res) => {
         res.status(400).send();
     });
 });
+
 
 //FETCH MOVIE BY ID
 app.get('/movies/:id', (req, res) => {
@@ -116,22 +119,49 @@ app.get('/movies/:id', (req, res) => {
 });
 
 
-// DELETE MOVIE BY ID
-// app.delete('/movies/:id', (req, res) => {
-//     var id = req.params.id; // get the id
+// UPDATE MOVIE
+app.put('/movies/:id', (req, res) => {
+    var id = req.params.id;
+    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl' ,'trailer','updated']);
 
-//     if (!ObjectID.isValid(id)){   // validate the id --> not valid? return 404
-//       return res.status(404).send();
-//     }
-//     Todo.findByIdAndRemove(id).then((movie) => { // remove todo by Id
-//       if (!movie){
-//        return res.status(404).send(); // if no doc , send 404
-//       }
-//         res.status(200).send(movie); // if doc , send doc and 200
-//     }).catch((e) => {
-//     res.status(400).send();
-//     }); // error  400 with empty body
-// });
+    if (!ObjectID.isValid(id)) {
+        return res.status(400).send();
+    }
+
+    if (_.isBoolean(body.updated) && body.updated) {
+        body.updatedAt = new Date().getTime();
+    } else {
+        body.updated = false;
+        body.updatedAt = null;
+    }
+
+    Movie.findByIdAndUpdate(id, {$set: body}, {new: true}).then((movie) => {
+        if (!movie) {
+            return res.status(404).send();
+        }
+        res.send({ movie });
+    }).catch((e) => {
+        res.status(404).send();
+    })
+});
+
+
+// DELETE MOVIE BY ID
+app.delete('/movies/:id', (req, res) => {
+    var id = req.params.id; // get the id
+
+    if (!ObjectID.isValid(id)){   // validate the id --> not valid? return 404
+      return res.status(404).send();
+    }
+    Todo.findByIdAndRemove(id).then((movie) => { // remove todo by Id
+      if (!movie){
+       return res.status(404).send(); // if no doc , send 404
+      }
+        res.status(200).send(movie); // if doc , send doc and 200
+    }).catch((e) => {
+    res.status(400).send();
+    }); // error  400 with empty body
+});
 
 
 app.listen(port, () => {

@@ -1,38 +1,49 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var movieSchema = new Schema({
+var MovieSchema = new Schema({
 	title:{
 		type: String,
-		required: true,
-		trim: true,
+		required: true
 	},
 	year:{
 		type: Number
 	},
 	rate:{
-		type: Number,
-		required: true,
-		maxlength: 1,
-		trim: true
+		type: Number
 	},
 	language:{
-		type: String
+		type: String,
+		required: true
 	},
 	runtime:{
 		type: Number
 	},
 	description:{
-		type: String
+		type: String,
+		required: true
 	},
 	trailer:{
 		type: String
 	},
 	imageurl:{
+		type: String,
+		required: true
+	},
+	category:{
 		type: String
-	}
+	},
+	updated: {
+        type: Boolean,
+        default: false
+    },
+    updatedAt: {
+        type: Number,
+        default: null
+    }
+
 });
 
-var Movie = mongoose.model('Movie', movieSchema);
+var Movie = mongoose.model('Movie', MovieSchema);
 
 module.exports = {Movie};

@@ -1,7 +1,7 @@
 {
-  "name": "node-todo-api",
+  "name": "HIMDB",
   "version": "1.0.0",
-  "description": "Todo App",
+  "description": "HAY MOVIE DATABASE",
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js"
