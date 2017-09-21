@@ -90,7 +90,7 @@ app.get('/movies', (req, res) => {
 
 // ADD MOVIE
 app.post('/movies', (req, res) => {
-    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl' ,'trailer']);
+    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl' ,'trailer','category']);
     var movie = new Movie(body);
 
     movie.save().then((mov) => {
@@ -123,7 +123,7 @@ app.get('/movies/:id', (req, res) => {
 // UPDATE MOVIE
 app.put('/movies/:id', (req, res) => {
     var id = req.params.id;
-    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl' ,'trailer','updated']);
+    var body = _.pick(req.body, ['title', 'year', 'language', 'rate', 'runtime', 'description', 'imageurl' ,'trailer','updated','category']);
 
     if (!ObjectID.isValid(id)) {
         return res.status(400).send();

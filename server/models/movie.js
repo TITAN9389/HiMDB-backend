@@ -31,11 +31,11 @@ var MovieSchema = new Schema({
 		required: true
 	},
 	category:{
-		type: String
+		type: [String]
 	},
 	updated: {
         type: Boolean,
-        default: false
+        default: true,
     },
     updatedAt: {
         type: Number,
