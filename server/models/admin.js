@@ -1,29 +1,25 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-// const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
-var UserSchema = new Schema({
+var AdminSchema = new Schema({
 	username:{
 		type: String,
-		required: true,
-		trim: true,
-		minlength: 2
+		required: true
 	},
 	email:{
 		type: String,
 		required: true,
-		trim: true,
 		unique: true
 	},
 	password: {
 		type: String,
 		required: true,
-		minlength: 8
+		minlength: 6
 	},
-	tokens: {
+	tokens: [{
 		access: {
 			type: String,
 			required: true
@@ -32,36 +28,24 @@ var UserSchema = new Schema({
 			type: String,
 			required: true
 		}
-	} ,
-	age:{
-		type: Number,
-		required: true,
-		minlength: 1,
-		trim: true
-	},
-	favlist:{
-		type:[]
-	},
-	watchlist:{
-		type:[]
-	}
+	}]
 });
 
 // LIMIT RETURNED DATA
-UserSchema.methods.toJSON = function () {
+AdminSchema.methods.toJSON = function () {
 	var user = this;
 	var userObject = user.toObject();
 
-	return _.pick(userObject, ['_id','username','email','age','tokens','favlist','watchlist'])
+	return _.pick(userObject, ['_id','username','email','tokens'])
 };
 
 // GENERATING AUTH TOKEN FOR EACH USER
-UserSchema.methods.generateAuthToken = function () {
+AdminSchema.methods.generateAuthToken = function () {
 	var user = this;
 	var access = 'auth';
 	var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
 
-	user.tokens = ({access, token});
+	user.tokens.push({access, token});
 
 	return user.save().then(() => {
 		return token;
@@ -69,7 +53,7 @@ UserSchema.methods.generateAuthToken = function () {
 };
 
 // DELTE THE SPECIFIC TOKEN
-UserSchema.methods.removeToken = function(token) {
+AdminSchema.methods.removeToken = function(token) {
 	var user = this;
 
 	return user.update({
@@ -80,7 +64,7 @@ UserSchema.methods.removeToken = function(token) {
 };
 
 // FIND USER BY TOKEN WITH VERFICATION
-UserSchema.statics.findByToken = function (token) {
+AdminSchema.statics.findByToken = function (token) {
 	var User = this;
 	var decoded;
 
@@ -98,7 +82,7 @@ UserSchema.statics.findByToken = function (token) {
 };
 
 // FIND USER BY CREDENTIALS
-UserSchema.statics.findByCredentials = function (email,password){
+AdminSchema.statics.findByCredentials = function (email,password){
 	var User = this;
 
 	return User.findOne({ email }).then((user) => {
@@ -120,7 +104,7 @@ UserSchema.statics.findByCredentials = function (email,password){
 
 
 // .PRE TO START BEFORE EACH REQUEST
-UserSchema.pre('save', function (next) {
+AdminSchema.pre('save', function (next) {
 	var user = this;
 
 	if (user.isModified('password')) {
@@ -135,6 +119,6 @@ UserSchema.pre('save', function (next) {
 	};
 });
 
-var User = mongoose.model('User', UserSchema);
+var Admin = mongoose.model('Admin', AdminSchema);
 
-module.exports = {User};
+module.exports = {Admin};

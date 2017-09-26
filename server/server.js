@@ -7,6 +7,7 @@ const _ = require('lodash');
 
 var { mongoose } = require('./db/mongoose');
 var { User } = require('./models/user');
+// var { Admin } = require('./models/admin');
 var { Movie } = require('./models/movie');
 var { authenticate } = require('./middleware/authenticate');
 
@@ -26,7 +27,7 @@ app.use(function(req, res, next) {
 // =================================USERs===============================
 // ADD USER
 app.post('/users', (req, res) => {
-    var body = _.pick(req.body, ['name', 'email', 'password', 'age']);
+    var body = _.pick(req.body, ['username', 'email', 'password', 'age']);
     var user = new User(body);
 
     user.save().then(() => {
@@ -39,18 +40,23 @@ app.post('/users', (req, res) => {
 });
 
 // FETCH ALL USERS
-// app.get('/users', (req, res) => {
-//     User.find().then((users) => {
-//         res.send({ users })
-//     }, (e) => {
-//         res.status(400).send(e);
-//     });
-// });
+app.get('/users', (req, res) => {
+    User.find().then((users) => {
+        res.send({ users })
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
 
 
 // GET USER WITH AUTH TOKEN
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
+});
+
+// GET USER FAVOURITE MOVIES LIST
+app.get('/users/me/fav', authenticate, (req, res) => {
+    User.findOne(req.user)
 });
 
 
@@ -163,6 +169,9 @@ app.delete('/movies/:id', (req, res) => {
     res.status(400).send();
     }); // error  400 with empty body
 });
+
+// ======================================ADMINs====================================================
+
 
 
 app.listen(port, () => {
